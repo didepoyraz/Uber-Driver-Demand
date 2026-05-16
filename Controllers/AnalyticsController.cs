@@ -17,8 +17,8 @@ public class AnalyticsController : ControllerBase
 
     [HttpGet("hotspots")]
     public async Task<ActionResult<List<HotspotResponse>>> GetHotspots(
-        [FromQuery] DayOfWeek day,
-        [FromQuery] int hour)
+        [FromQuery] DayOfWeek? day,
+        [FromQuery] int? hour)
     {
         var result = await _analyticsService.GetHotspotsAsync(day, hour);
 

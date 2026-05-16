@@ -13,10 +13,25 @@ public class AnalyticsService
         _db = db;
     }
 
-    public async Task<List<HotspotResponse>> GetHotspotsAsync(DayOfWeek day, int hour)
+    public async Task<List<HotspotResponse>> GetHotspotsAsync(DayOfWeek? day, int? hour)
     {
-        var result = await _db.Rides
-            .Where(r => r.PickupTime.DayOfWeek == day && r.PickupTime.Hour == hour)
+        var query = _db.Rides.AsQueryable();
+
+        if (day.HasValue)
+        {
+            query = query.Where(r => r.PickupTime.DayOfWeek == day.Value);
+        }
+
+        if (hour.HasValue)
+        {
+            var selectedDay = day ?? DateTime.Now.DayOfWeek;
+
+            query = query.Where(r =>
+                r.PickupTime.DayOfWeek == selectedDay &&
+                r.PickupTime.Hour == hour.Value);
+        }
+
+        var result = await query
             .GroupBy(r => new { r.PickupArea, Hour = r.PickupTime.Hour })
             .Select(g => new HotspotResponse
             {
